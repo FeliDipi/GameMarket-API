@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 const userName = encodeURIComponent(process.env.USER_NAME);
-const userPassword = encodeURI(process.env.USER_PASSWORD);
+const userPassword = encodeURIComponent(process.env.USER_PASSWORD);
 
 mongoose.connect(
   `mongodb+srv://${userName}:${userPassword}@clustermarketdb.a5ztr.mongodb.net/?retryWrites=true&w=majority&appName=ClusterMarketDB`
