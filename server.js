@@ -7,8 +7,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const userName = encodeURIComponent(process.env.DB_USERNAME);
-const userPassword = encodeURI(process.env.DB_PASSWORD);
+const userName = encodeURIComponent(process.env.USER_NAME);
+const userPassword = encodeURI(process.env.USER_PASSWORD);
 
 mongoose.connect(
   `mongodb+srv://${userName}:${userPassword}@clustermarketdb.a5ztr.mongodb.net/?retryWrites=true&w=majority&appName=ClusterMarketDB`
@@ -26,7 +26,6 @@ const productSchema = new mongoose.Schema({
   description: String,
   price: Number,
   reference: String,
-  thumbnail: String,
 });
 
 const Product = mongoose.model("Product", productSchema);
@@ -40,7 +39,8 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
-const port = 3000;
+const port = process.env.PORT;
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
