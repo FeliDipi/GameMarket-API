@@ -28,7 +28,14 @@ const productSchema = new mongoose.Schema({
   reference: String,
 });
 
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  balance: Number,
+});
+
 const Product = mongoose.model("Product", productSchema);
+const User = mongoose.model("User", userSchema);
 
 app.get("/api/products", async (req, res) => {
   try {
@@ -36,6 +43,44 @@ app.get("/api/products", async (req, res) => {
     res.json(products);
   } catch (error) {
     res.status(500).send(error.message);
+  }
+});
+
+app.post("/api/buy", async (req, res) => {
+  const { userId, productId } = req.body;
+
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+  const productObjectId = new mongoose.Types.ObjectId(productId);
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const user = await User.findById(userObjectId).session(session);
+    const product = await Product.findById(productObjectId).session(session);
+
+    if (!user || !product) {
+      throw new Error("User or Product not found");
+    }
+
+    if (user.balance < product.price) {
+      throw new Error("Insufficient balance");
+    }
+
+    user.balance -= product.price;
+    await user.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Purchase made successfully" });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    res.status(400).json({ success: false, message: error.message });
   }
 });
 
