@@ -46,6 +46,18 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
+app.post("/api/user", async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const user = await User.findById(userObjectId);
+    res.json(user);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
 app.post("/api/buy", async (req, res) => {
   const { userId, productId } = req.body;
 
